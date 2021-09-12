@@ -5,8 +5,8 @@ import { Response } from "../types/mod.ts";
 import { AuthenticatorBase } from "./mod.ts";
 
 export class DiscordAuthenticator extends AuthenticatorBase {
-  constructor(clientId?: string, clientSecret?: string) {
-    super();
+  constructor(clientId: string, clientSecret: string) {
+    super(clientId, clientSecret);
   }
 
   redirect(

@@ -5,8 +5,8 @@ import { Response } from "../types/mod.ts";
 import { AuthenticatorBase } from "./mod.ts";
 
 export class GithubAuthenticator extends AuthenticatorBase {
-  constructor() {
-    super();
+  constructor(clientId: string, clientSecret: string) {
+    super(clientId, clientSecret);
   }
 
   redirect(

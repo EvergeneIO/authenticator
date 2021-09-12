@@ -40,31 +40,64 @@ async function login(
 }
 
 export class Authenticator {
-  discord = null;
-  github = null;
-  constructor(...options: AuthenticatorOptions[]) {
-    this.setConfig(options);
+  discord: DiscordAuthenticator | null = null;
+  github: GithubAuthenticator | null = null;
+
+  constructor(options?: Test) {
+    if (options) this.setConfig(options);
   }
 
-  setConfig(options: AuthenticatorOptions[]) {
-    options.forEach((option: AuthenticatorOptions) => {
-      const { type, clientId, clientSecret } = option;
+  setConfig(options: Test): boolean {
+    try {
+      Object.entries(options).forEach((entry) => {
+        const [provider, option] = entry;
+        if (provider === "custom") return;
+        const { clientId, clientSecret } = option;
 
-      switch (type?.toUpperCase()) {
-        case "DISCORD":
-          this.discord = new DiscordAuthenticator(clientId, clientSecret);
-          break;
-        case "GITHUB":
-          break;
-        default:
-          throw new Error(`Invalid type "${type?.toUpperCase()}"!`);
-      }
-    });
+        switch (provider?.toUpperCase()) {
+          case "DISCORD":
+            this.discord = new DiscordAuthenticator(clientId, clientSecret);
+            break;
+          case "GITHUB":
+            break;
+          default:
+            throw new Error(`Invalid provider "${provider?.toUpperCase()}"!`);
+        }
+      });
+    } catch (_) {
+      return false;
+    }
+    return true;
   }
 }
 
-interface AuthenticatorOptions {
-  type: "DISCORD" | "GITHUB";
-  clientId: string;
-  clientSecret: string;
+interface AuthenticatorOptions<provider extends "discord" | "github"> {
+  provider?: {
+    clientId: string;
+    clientSecret: string;
+  };
 }
+
+type Test<K extends "github" | "discord" | "custom"> = {
+  [P in K]: [K extends "custom" ? Record<string, ProviderSettings> : ProviderSettings];
+};
+//Record<"github" | "discord" | "custom", K != "custom" ? ProviderSettings : Record<string, ProviderSettings>>;
+
+type ProviderSettings = Record<"clientId" | "clientSecret", string>;
+
+const auth = new Authenticator({
+  discord: {
+    clientId: "a",
+    clientSecret: "a",
+  },
+  github: {
+    clientId: "b",
+    clientSecret: "b",
+  },
+  microsoft: {
+    clientId: "a",
+    clientSecret: "a",
+  },
+});
+
+console.log(auth);
