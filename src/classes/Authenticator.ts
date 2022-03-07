@@ -43,11 +43,11 @@ export class Authenticator {
   discord: DiscordAuthenticator | null = null;
   github: GithubAuthenticator | null = null;
 
-  constructor(options?: Test) {
+  constructor(options?: ProviderList) {
     if (options) this.setConfig(options);
   }
 
-  setConfig(options: Test): boolean {
+  setConfig(options: ProviderList): boolean {
     try {
       Object.entries(options).forEach((entry) => {
         const [provider, option] = entry;
@@ -71,32 +71,63 @@ export class Authenticator {
   }
 }
 
-interface AuthenticatorOptions<provider extends "discord" | "github"> {
-  provider?: {
-    clientId: string;
-    clientSecret: string;
-  };
+interface ProviderList {
+  discord?: ProviderSettings;
+  github?: ProviderSettings;
+  custom?: CustomProviders;
 }
 
-type Test<K extends "github" | "discord" | "custom"> = {
-  [P in K]: [K extends "custom" ? Record<string, ProviderSettings> : ProviderSettings];
-};
-//Record<"github" | "discord" | "custom", K != "custom" ? ProviderSettings : Record<string, ProviderSettings>>;
-
-type ProviderSettings = Record<"clientId" | "clientSecret", string>;
+//type CustomProviders = Record<string, Record<"clientId" | "clientSecret" | "redirectUri" | string, string>>;
+interface CustomProviders {
+  [index: string]: {
+    clientId: string;
+    clientSecret: string;
+    redirectUri: string;
+    accessTokenUrl: string;
+    scopes: string;
+    authorizationUrl: string;
+    refreshTokenUrl: string;
+    revokeTokenUrl: string;
+  };
+}
+interface ProviderSettings {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  accessTokenUrl?: string;
+  scopes?: string;
+  authorizationUrl?: string;
+  refreshTokenUrl?: string;
+  revokeTokenUrl?: string;
+}
 
 const auth = new Authenticator({
   discord: {
     clientId: "a",
     clientSecret: "a",
+    redirectUri: "a",
   },
-  github: {
-    clientId: "b",
-    clientSecret: "b",
-  },
-  microsoft: {
-    clientId: "a",
-    clientSecret: "a",
+  custom: {
+    eveonline: {
+      clientId: "b",
+      clientSecret: "b",
+      redirectUri: "a",
+      accessTokenUrl: "",
+      scopes: "",
+      authorizationUrl: "",
+      refreshTokenUrl: "",
+      revokeTokenUrl: "",
+    },
+    microsoft: {
+      clientId: "a",
+      clientSecret: "a",
+      redirectUri: "a",
+      accessTokenUrl: "",
+      scopes: "",
+      authorizationUrl: "",
+      refreshTokenUrl: "",
+      revokeTokenUrl: "",
+    },
   },
 });
 
